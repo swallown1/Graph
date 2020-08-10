@@ -1,19 +1,14 @@
-import sys
-import os
-import torch
 import argparse
-import random
-import numpy as np
-from GraphSAGE.utils import *
-from GraphSAGE.load_data import Dataset
-from GraphSAGE.GraphSAGE import GraphSAGE,Classification,UnsupervisedLoss
+from utils import *
+from load_data import Dataset
+from GraphSAGE import *
 
 
 parser = argparse.ArgumentParser(description='pytorch version of GraphSAGE')
 
 parser.add_argument('--dataSet', type=str, default='cora')
 parser.add_argument('--agg_func', type=str, default='MEAN')
-parser.add_argument('--epochs', type=int, default=50)
+parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--b_sz', type=int, default=20)
 parser.add_argument('--seed', type=int, default=824)
 parser.add_argument('--cuda', action='store_true',help='use CUDA')
@@ -44,13 +39,13 @@ if __name__ == '__main__':
 
     # load data
     ds = args.dataSet
-    data = Dataset(dataset='cora',path='./')
+    data = Dataset(dataset='cora', path='../GraphSAGE/')
     data.load_data()
 
     feat = torch.FloatTensor(data.cora_feats).to(device)
     num_labels = len(set(getattr(data, ds + '_labels')))
 
-    graphsage = GraphSAGE([64,64],feat.size(1),128,feat, getattr(data, ds+'_adj_lists'),
+    graphSage = GraphSage(2,feat.size(1),128,feat, getattr(data, ds+'_adj_lists'),
                           device, gcn=args.gcn, agg_func=args.agg_func).to(device)
 
     classification = Classification(128,num_labels).to(device)
